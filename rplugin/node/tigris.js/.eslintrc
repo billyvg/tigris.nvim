@@ -1,0 +1,10 @@
+{
+  "extends": "airbnb",
+  "globals": {
+    "plugin": true,
+    "debug": true,
+  },
+  "rules": {
+    "no-shadow": 0
+  }
+}
