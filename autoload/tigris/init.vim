@@ -62,7 +62,7 @@ function! tigris#init#_initialize() abort
 endfunction
 
 function! tigris#init#_enable() abort
-    call tigris#handlers#_init()
+    " call tigris#handlers#_init()
     let s:is_enabled = 1
     " if get(g:, 'tigris#debug', 0) "{{{
         " call tigris#enable_logging('DEBUG', 'tigris.log')
