@@ -172,19 +172,19 @@ function initialize(nvim) {
   }
 }
 
-plugin.function('tigris#toggle', (nvim) => {
+plugin.function('_tigris_toggle', (nvim) => {
   nvim.getVar(ENABLE_VAR, (err, enabled) => {
     nvim.setVar(ENABLE_VAR, !enabled);
   });
 });
 
-plugin.function('tigris#highlight#clear', (nvim) => {
+plugin.function('_tigris_highlight_clear', (nvim) => {
   nvim.getCurrentBuffer((err, buffer) => {
     buffer.clearHighlight(-1, 0, -1);
   });
 });
 
-plugin.function('tigris#parse_debounced', (nvim, args) => {
+plugin.function('_tigris_parse_debounced', (nvim, args) => {
   try {
     if (typeof flyParse === 'function') {
       flyParse(nvim, args);
@@ -193,7 +193,7 @@ plugin.function('tigris#parse_debounced', (nvim, args) => {
     debug(err, err.stack);
   }
 });
-plugin.function('tigris#parse', (nvim, args) => {
+plugin.function('_tigris_parse', (nvim, args) => {
   debug('vim func parse');
   try {
     parse(nvim, args);
@@ -202,7 +202,7 @@ plugin.function('tigris#parse', (nvim, args) => {
   }
 });
 
-plugin.function('_tigris#highlight#debug', (nvim) => {
+plugin.function('_tigris_highlight_debug', (nvim) => {
   nvim.getCurrentWindow((err, win) => {
     win.getCursor((err, pos) => {
       try {

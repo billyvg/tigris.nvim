@@ -10,12 +10,12 @@ function! tigris#handlers#_init() abort
   echomsg "handlers inint"
     augroup tigris
         autocmd!
-        autocmd BufEnter *.js,*.jsx call _tigris#parse()
-        autocmd InsertLeave * call tigris#parse_debounced()
-        autocmd TextChanged * call tigris#parse_debounced()
+        autocmd BufEnter *.js,*.jsx call _tigris_parse()
+        autocmd InsertLeave * call tigris_parse_debounced()
+        autocmd TextChanged * call tigris_parse_debounced()
         "autocmd CursorMoved * call tigris#handlers#_highlight()
         if get(g:, 'tigris#on_the_fly_enabled', 0)
-            autocmd TextChangedI * call tigris#parse_debounced()
+            autocmd TextChangedI * call tigris_parse_debounced()
         endif
     augroup END
 endfunction
