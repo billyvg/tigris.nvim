@@ -29,12 +29,13 @@ npm install -g neovim-client
 
 ### Install Vim Plugins (needs testing)
 
-Use a plugin manager (for example, Neobundle, dein, etc). `neovim/node-host` requires running npm install.
-You may need to run `npm install` in `tigris.nvim/rplugin/node/tigris.js/` as well.
+Use a plugin manager (vim-plug, Neobundle, dein, etc). `neovim/node-host` requires running npm install.
+You may need to run `install.sh` in `tigris.nvim` as well.
 
+#### vim-plug
 ```vim
-NeoBundle 'neovim/node-host'
-NeoBundle 'billyvg/tigris.nvim'
+Plug 'neovim/node-host', { 'do': 'npm install' }
+Plug 'billyvg/tigris.nvim', { 'do': './install.sh' }
 ```
 
 Or manually check out the repo and put the directory to your vim runtime path.
