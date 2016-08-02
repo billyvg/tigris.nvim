@@ -1,0 +1,83 @@
+" basics
+highlight link jsVariableDeclaration Keyword
+highlight link jsLiteral String
+highlight link jsThisExpression jsThis
+highlight link jsUndefined Keyword
+
+" decorators
+highlight link jsDecorator Special
+
+" es6 imports/exports
+highlight! link jsImportDeclaration Include
+highlight! link jsImportSpecifier Include
+highlight! link jsImportSpecifierIdentifier Norm
+highlight! link jsImportDefaultSpecifier Norm
+highlight link jsExportDefaultDeclaration Include
+highlight link jsExportNamedDeclaration Include
+highlight! link jsExportSpecifier Include
+highlight! link jsExportSpecifierIdentifier Norm
+highlight! link jsExportDefaultSpecifier Norm
+
+" strings
+highlight link jsStringLiteral String
+
+" es6 string templates
+highlight link jsTemplateLiteral String
+highlight link jsTemplateLiteralExpression Special
+highlight link jsTemplateLiteralIdentifier Special
+highlight link jsTemplateLiteralMemberExpression Special
+highlight link jsTemplateLiteralCallExpression Special
+
+" ternary
+highlight link jsTernaryOperator SpecialChar
+
+" Operators
+highlight link jsAssignmentOperator Operator
+highlight link jsLogicalOperator Operator
+highlight link jsBinaryOperator Operator
+
+" es6 classes
+highlight link jsClassMethodIdentifier jsFunctionKey
+highlight link jsClassMethodKeyword Keyword
+highlight link jsClassMethodParameter jsFuncArgs
+
+" function declarations
+highlight link jsFunctionDeclarationKeyword Keyword
+highlight link jsFunctionDeclarationIdentifier jsFunctionKey
+highlight link jsFunctionArgument jsFuncArgs
+"
+" es6 arrow functions
+highlight link jsArrowFunctionExpression jsFunctionKey
+highlight link jsArrowFunctionExpressionToken Keyword
+highlight link jsArrowFunctionParameter jsFuncArgs
+highlight link jsArrowFunctionBlock jsFunctionKey
+
+" function default arguments
+highlight link jsDefaultArgumentAssignmentOperator Operator
+highlight link jsDefaultArgument Norm
+
+" jsx
+highlight link jsJSXElementName xmlTagName
+highlight link jsJSXOpeningElement xmlTag
+highlight link jsJSXClosingElement xmlEndTag
+highlight link jsJSXAttribute xmlAttrib
+highlight link jsJSXExpressionContainer Norm
+
+" flow
+highlight link jsFlowTypeAnnotation jsFlowType
+highlight link jsStringTypeAnnotation jsFlowTypeAnnotation
+highlight link jsBooleanTypeAnnotation jsFlowTypeAnnotation
+highlight link jsNumberTypeAnnotation jsFlowTypeAnnotation
+highlight link jsAnyTypeAnnotation jsFlowTypeAnnotation
+highlight link jsMixedTypeAnnotation jsFlowTypeAnnotation
+highlight link jsNullLiteralTypeAnnotation jsFlowTypeAnnotation
+highlight link jsGenericTypeAnnotationParameter jsFlowTypeAnnotation
+highlight link jsGenericTypeAnnotationIdentifier jsFlowTypeAnnotation
+highlight link jsObjectTypeAnnotationStartBracket jsFlowTypeAnnotation
+highlight link jsObjectTypeAnnotationEndBracket jsFlowTypeAnnotation
+highlight link jsGenericTypeAnnotation Norm
+highlight link jsTypeParameterInstantiation Norm
+highlight link jsTypeAliasKeyword SpecialKey
+highlight link jsTypeAliasIdentifier Norm
+highlight link jsObjectTypeProperty Norm
+
