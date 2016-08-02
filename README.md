@@ -68,3 +68,4 @@ before performance.
 [5]: https://nodejs.org/en/
 [6]: https://github.com/neovim/node-client
 [7]: https://github.com/babel/babylon
+[8]: https://github.com/neovim/node-host
