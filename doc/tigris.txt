@@ -1,0 +1,156 @@
+*tigris*	Javascript syntax highlighting using babel (Neovim only)
+
+==============================================================================
+CONTENTS				*tigris-contents*
+1. Intro			|tigris-intro|
+2. Requirements			|tigris-requirements|
+3. Installation			|tigris-installation|
+4. Options			|tigris-options|
+4. Commands			|tigris-commands|
+6. Compilation Database		|tigris-compilation-database|
+6. Responsive Mode		|tigris-responsive-mode|
+8. FAQ				|tigris-faq|
+9. LICENSE			|tigris-license|
+
+==============================================================================
+					*tigris-intro*
+1. Intro~
+
+tigris is a NodeJS remote plugin for Neovim that provides async syntax highlighting for
+javascript using babylon (the parsing engine used by babel).
+
+Github~
+
+https://github.com/billyvg/tigris.nvim
+
+==============================================================================
+					*tigris-requirements*
+2. Requirements~
+
+tigris requires the following:
+
+* Neovim 0.1.5
+* Node.js (tested with 5.12.0 and 6.3.0)
+
+==============================================================================
+					*tigris-installation*
+3. Installation~
+
+Neobundle Install~
+>
+	Bundle 'neovim/node-host'
+	Bundle 'billyvg/tigris.nvim'
+<
+==============================================================================
+					*tigris-options*
+4. Options~
+
+|g:tigris#debug|
+|g:tigris#on_the_fly_enabled|
+|g:tigris#delay|
+
+------------------------------------------------------------------------------
+					*g:tigris#debug*
+g:tigris#debug~
+
+Debug mode
+
+Default: 01`
+>
+	let g:tigris#debug = 0
+------------------------------------------------------------------------------
+					*g:tigris#enable_at_startup*
+g:tigris#enable_at_startup~
+
+Tigris will automatically start when
+g:tigris#enable_at_startup == `1`, regardless the filetype. To load
+Tigris only for C-family languages, please refer to the manual of
+your plugin manager.
+
+Default: `1`
+>
+	let g:tigris#enable_at_startup = 1
+<
+-------------------------------------------------------------------------------
+					*g:tigris#on_the_fly_enabled*
+g:tigris#on_the_fly_enabled~
+
+tigris responsive mode reparses and updates highlight as soon as you
+make any change to the buffer.
+
+Default: `1`
+>
+	let g:tigris#on_the_fly_enabled = 1
+
+-------------------------------------------------------------------------------
+					*g:tigris#delay*
+g:tigris#delay~
+
+parse debounce time in on-the-fly mode
+
+Default: `100`
+>
+	let g:tigris#delay = 100
+
+==============================================================================
+					*tigris-commands*
+5. Commands ~
+
+Tigris provides these commands.
+
+|TigrisEnable|
+|TigrisDisable|
+|TigrisToggle|
+|TigrisShowInfo|
+
+------------------------------------------------------------------------------
+					*TigrisEnable*
+TigrisEnable~
+
+Enable tigris plugin.
+
+------------------------------------------------------------------------------
+					*TigrisDisable*
+TigrisDisable~
+
+Disable tigris plugin.
+
+------------------------------------------------------------------------------
+					*TigrisToggle*
+TigrisToggle~
+
+Toggle on/off tigris.
+
+------------------------------------------------------------------------------
+					*TigrisShowInfo*
+TigrisShowInfo~
+
+Show tigris runtime information.
+
+==============================================================================
+					*tigris-on-the-fly-mode*
+6. On the Fly Mode~
+
+By default the plugin works when you enter a buffer or when you leave Insert mode. You can turn
+on as-you-type highlighting by enabling "on the fly" mode, as well as controling the debounce
+time (default: 100ms).
+>
+	let g:tigris#on_the_fly_enabled = 1
+
+==============================================================================
+					*tigris-faq*
+7. FAQ~
+
+Nothing for now.
+
+==============================================================================
+                                        *tigris-license*
+8. License ~
+
+This software is licensed under the MIT license.
+
+Note: This license does not cover the files that come from the LLVM project.
+
+==============================================================================
+
+vim:tw=78:ts=8:noet:ft=help:
