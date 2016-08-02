@@ -39,12 +39,12 @@ NeoBundle 'billyvg/tigris.nvim'
 Or manually check out the repo and put the directory to your vim runtime path.
 
 ## On the fly highlighting
-By default the plugin works when you enter a buffer or when you leave Insert mode. You can turn
-on as-you-type highlighting by enabling "on the fly" mode, as well as controling the debounce
-time (default: 100ms).
+By default the plugin works as you change the buffer in Insert mode. Parsing is debounced with a 100ms delay (i.e. at most,
+the parser will only run once every 100ms). You can change this delay or disable this completely. When disabled, the
+parser will run when you enter a buffer or leave Insert mode.
 
 ```vim
-let g:tigris#on_the_fly_enabled=1
+let g:tigris#on_the_fly_enabled=0
 let g:tigris#delay=50
 ```
 

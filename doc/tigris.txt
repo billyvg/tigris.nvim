@@ -43,7 +43,7 @@ Neobundle Install~
 <
 ==============================================================================
 					*tigris-options*
-4. Options~
+4. Options (not implemented)~
 
 |g:tigris#debug|
 |g:tigris#on_the_fly_enabled|
@@ -94,7 +94,7 @@ Default: `100`
 
 ==============================================================================
 					*tigris-commands*
-5. Commands ~
+5. Commands (not implemented) ~
 
 Tigris provides these commands.
 
