@@ -54,6 +54,7 @@ function parse(nvim) {
                 if (!err) {
                   // Reset debugging map of highlight groups
                   HIGHLIGHT_MAP.clear();
+                  buffer.clearHighlight(-1, 0, -1);
 
                   // Call parser
                   debug('Calling tigris parser');
