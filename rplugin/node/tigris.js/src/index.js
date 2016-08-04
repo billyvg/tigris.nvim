@@ -227,18 +227,24 @@ plugin.function('_tigris_parse', (nvim, args) => {
 });
 
 plugin.function('_tigris_highlight_debug', (nvim) => {
-  nvim.getCurrentWindow((err, win) => {
-    win.getCursor((err, pos) => {
-      try {
-        const key = `${pos[0]},${pos[1]}`;
-        if (HIGHLIGHT_MAP.has(key)) {
-          const group = HIGHLIGHT_MAP.get(key);
-          nvim.command(`echomsg "Position: ${key} - Highlight groups: ${[group.join(', ')]}"`);
-        }
-      } catch (err) {
-        debug(err, err.stack);
-      }
-    });
+  nvim.getVar(DEBUG_VAR, (err, isDebug) => {
+    if (isDebug) {
+      nvim.getCurrentWindow((err, win) => {
+        win.getCursor((err, pos) => {
+          try {
+            const key = `${pos[0]},${pos[1]}`;
+            if (HIGHLIGHT_MAP.has(key)) {
+              const group = HIGHLIGHT_MAP.get(key);
+              nvim.command(`echomsg "[tigris] position: ${key} - Highlight groups: ${[group.join(', ')]}"`);
+            }
+          } catch (err) {
+            debug(err, err.stack);
+          }
+        });
+      });
+    } else {
+      nvim.command('echomsg "[tigris] debug mode not enabled: "let g:tigris#debug=1" to enable');
+    }
   });
 });
 
