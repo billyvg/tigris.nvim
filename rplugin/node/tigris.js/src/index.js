@@ -96,7 +96,7 @@ function parse(nvim) {
                     } else {
                       // Error parsing
                       debug('Error parsing AST: ', err, err.stack);
-                      nvim.command('tigris#util#print_error', `Error parsing AST: ${err}`);
+                      nvim.callFunction('tigris#util#print_error', `Error parsing AST: ${err}`);
 
                       // should highlight errors?
                       if (err && err.loc) {
