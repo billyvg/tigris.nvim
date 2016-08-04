@@ -40,18 +40,34 @@ Plug 'billyvg/tigris.nvim', { 'do': './install.sh' }
 
 Or manually check out the repo and put the directory to your vim runtime path.
 
+## How to use
+You can use the `:TigrisStart` (as well as `:TigrisToggle`) command to parse your document once, and `:TigrisStop` to clear highlighting and disable parsing.
+
+You can configure the parser to run at startup by
+
+```vim
+let g:tigris#enabled = 1
+```
+
+### Debugging
+`:TigrisDebug` will give you information about what highlighting groups your current cursor position is in. You must have debug mode turned on first. You can then use these groups for your own highlighting.
+
+```vim
+let g:tigris#debug = 1
+```
+
 ## On the fly highlighting
-By default the plugin works as you change the buffer in Insert mode. Parsing is debounced with a 100ms delay (i.e. at most,
-the parser will only run once every 100ms). You can change this delay or disable this completely. When disabled, the
+By default the plugin works as you change the buffer in Insert mode. Parsing is debounced with a 500ms delay (i.e. at most,
+the parser will only run once every 500ms). You can change this delay or disable this completely. When disabled, the
 parser will run when you enter a buffer or leave Insert mode.
 
 ```vim
-let g:tigris#on_the_fly_enabled=0
-let g:tigris#delay=50
+let g:tigris#on_the_fly_enabled = 1
+let g:tigris#delay = 500
 ```
 
 Note that this may slowdown your system (especially with larger files) since it can potentially
-be traversing the AST every 100ms.
+be traversing the AST every 500ms.
 
 
 ## Known Issues
