@@ -45,7 +45,6 @@ function parse(nvim) {
   const start = +new Date();
   nvim.getVar(ENABLE_VAR, (err, enabled) => {
     debug('Should parse?: ', enabled);
-    nvim.command(`echomsg "[tigris] should parse? = ${enabled}"`);
     if (enabled) {
       nvim.getCurrentBuffer((err, buffer) => {
         if (!err) {
@@ -59,7 +58,6 @@ function parse(nvim) {
 
                   // Call parser
                   debug('Calling tigris parser');
-                  nvim.command('echomsg "[tigris] starting parse"');
                   parser(res.join('\n'), {
                     plugins: [
                       'jsx',
