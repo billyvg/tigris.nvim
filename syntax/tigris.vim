@@ -1,3 +1,5 @@
+highlight Norm ctermfg=252 guifg=#e8e8e3
+
 " basics
 highlight link jsVariableDeclaration Keyword
 highlight link jsLiteral String
