@@ -186,6 +186,12 @@ plugin.function('_tigris_enable', (nvim) => {
 
 plugin.function('_tigris_disable', (nvim) => {
   nvim.setVar(ENABLE_VAR, false);
+
+  nvim.getCurrentBuffer((err, buffer) => {
+    buffer.clearHighlight(-1, 0, -1);
+  });
+
+  HIGHLIGHT_MAP.clear();
 });
 
 plugin.function('_tigris_toggle', (nvim) => {
