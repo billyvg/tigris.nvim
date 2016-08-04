@@ -3,20 +3,22 @@ highlight link jsVariableDeclaration Keyword
 highlight link jsLiteral String
 highlight link jsThisExpression jsThis
 highlight link jsUndefined Keyword
+highlight link jsReturnKeyword SpecialChar
 
 " decorators
 highlight link jsDecorator Special
+highlight link jsDecoratorArguments Norm
 
 " es6 imports/exports
-highlight! link jsImportDeclaration Include
-highlight! link jsImportSpecifier Include
-highlight! link jsImportSpecifierIdentifier Norm
-highlight! link jsImportDefaultSpecifier Norm
+highlight link jsImportDeclaration Include
+highlight link jsImportSpecifier Include
+highlight link jsImportSpecifierIdentifier Norm
+highlight link jsImportDefaultSpecifier Norm
 highlight link jsExportDefaultDeclaration Include
 highlight link jsExportNamedDeclaration Include
-highlight! link jsExportSpecifier Include
-highlight! link jsExportSpecifierIdentifier Norm
-highlight! link jsExportDefaultSpecifier Norm
+highlight link jsExportSpecifier Include
+highlight link jsExportSpecifierIdentifier Norm
+highlight link jsExportDefaultSpecifier Norm
 
 " strings
 highlight link jsStringLiteral String
@@ -62,8 +64,12 @@ highlight link jsJSXOpeningElement xmlTag
 highlight link jsJSXClosingElement xmlEndTag
 highlight link jsJSXAttribute xmlAttrib
 highlight link jsJSXExpressionContainer Norm
+highlight link jsJSXSpreadAttributeObjectProperty Norm
+highlight link jsJSXSpreadAttributeObjectExpression Norm
+highlight link jsJSXSpreadAttributeSpreadProperty Norm
 
 " flow
+highlight link jsFlowType Type
 highlight link jsFlowTypeAnnotation jsFlowType
 highlight link jsStringTypeAnnotation jsFlowTypeAnnotation
 highlight link jsBooleanTypeAnnotation jsFlowTypeAnnotation
