@@ -198,6 +198,8 @@ plugin.function('_tigris_highlight_clear', (nvim) => {
   nvim.getCurrentBuffer((err, buffer) => {
     buffer.clearHighlight(-1, 0, -1);
   });
+
+  HIGHLIGHT_MAP.clear();
 });
 
 plugin.function('_tigris_parse_debounced', (nvim, args) => {
