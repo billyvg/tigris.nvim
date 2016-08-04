@@ -44,7 +44,8 @@ function parse(nvim) {
   debug('Parse start');
   const start = +new Date();
   nvim.getVar(ENABLE_VAR, (err, enabled) => {
-    debug('Parsing: ', enabled);
+    debug('Should parse?: ', enabled);
+    nvim.command(`echomsg "[tigris] should parse? = ${enabled}"`);
     if (enabled) {
       nvim.getCurrentBuffer((err, buffer) => {
         if (!err) {
@@ -58,6 +59,7 @@ function parse(nvim) {
 
                   // Call parser
                   debug('Calling tigris parser');
+                  nvim.command('echomsg "[tigris] starting parse"');
                   parser(res.join('\n'), {
                     plugins: [
                       'jsx',
@@ -94,6 +96,7 @@ function parse(nvim) {
                     } else {
                       // Error parsing
                       debug('Error parsing AST: ', err, err.stack);
+                      nvim.command('tigris#util#print_error', `Error parsing AST: ${err}`);
 
                       // should highlight errors?
                       if (err && err.loc) {
