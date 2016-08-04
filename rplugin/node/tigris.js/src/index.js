@@ -17,7 +17,7 @@ const FLY_VAR = 'tigris#on_the_fly_enabled';
 const EXT_VAR = 'tigris#extensions';
 
 // defaults
-const DELAY_DEFAULT = 100;
+const DELAY_DEFAULT = 500;
 const EXT_DEFAULT = ['*.js', '*.jsx'];
 const ERR_ID = 12345;
 
