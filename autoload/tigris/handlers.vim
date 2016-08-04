@@ -7,15 +7,15 @@
 " =============================================================================
 
 function! tigris#handlers#_init() abort
-  echomsg "handlers inint"
+  echomsg "handlers init"
     augroup tigris
         autocmd!
         autocmd BufEnter *.js,*.jsx call _tigris_parse()
-        autocmd InsertLeave * call tigris_parse_debounced()
-        autocmd TextChanged * call tigris_parse_debounced()
+        autocmd InsertLeave * call _tigris_parse_debounced()
+        autocmd TextChanged * call _tigris_parse_debounced()
         "autocmd CursorMoved * call tigris#handlers#_highlight()
         if get(g:, 'tigris#on_the_fly_enabled', 0)
-            autocmd TextChangedI * call tigris_parse_debounced()
+            autocmd TextChangedI * call _tigris_parse_debounced()
         endif
     augroup END
 endfunction

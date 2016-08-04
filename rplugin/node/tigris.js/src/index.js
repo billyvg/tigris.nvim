@@ -173,6 +173,18 @@ function initialize(nvim) {
   }
 }
 
+plugin.function('_tigris_enable', (nvim) => {
+  nvim.setVar(ENABLE_VAR, true, (err) => {
+    if (!err) {
+      parse(nvim);
+    }
+  });
+});
+
+plugin.function('_tigris_disable', (nvim) => {
+  nvim.setVar(ENABLE_VAR, false);
+});
+
 plugin.function('_tigris_toggle', (nvim) => {
   nvim.getVar(ENABLE_VAR, (err, enabled) => {
     nvim.setVar(ENABLE_VAR, !enabled);

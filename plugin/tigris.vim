@@ -17,10 +17,10 @@ endif
 let s:script_folder_path = escape( expand( '<sfile>:p:h' ), '\'   )
 execute('source '. s:script_folder_path . '/../syntax/tigris.vim')
 
-command! TigrisStart call tigris#enable()
-command! TigrisStop call tigris#disable()
-command! TigrisToggle call tigris#toggle()
-command! TigrisDebug call tigris#highlight#debug()
+command! TigrisStart call _tigris_enable()
+command! TigrisStop call _tigris_disable()
+command! TigrisToggle call _tigris_toggle()
+command! TigrisDebug call _tigris_highlight_debug()
 
 let g:loaded_tigris=1
 

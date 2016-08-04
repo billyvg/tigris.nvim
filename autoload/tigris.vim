@@ -14,11 +14,13 @@ function! tigris#enable() abort
     if tigris#initialize()
         return 1
     endif
+    call _tigris_enable()
     return tigris#init#_enable()
 endfunction
 
 function! tigris#disable() abort
-    call tigris#highlight#clear()
+    call _tigris_highlight_clear()
+    call _tigris_disable()
     return tigris#init#_disable()
 endfunction
 
