@@ -174,36 +174,48 @@ function initialize(nvim) {
   }
 }
 
-plugin.function('_tigris_enable', (nvim) => {
+const clear = (nvim) => {
+  nvim.getCurrentBuffer((err, buffer) => {
+    buffer.clearHighlight(-1, 0, -1);
+  });
+
+  HIGHLIGHT_MAP.clear();
+};
+
+const enable = (nvim) => {
   nvim.setVar(ENABLE_VAR, true, (err) => {
     if (!err) {
       parse(nvim);
     }
   });
+};
+
+const disable = (nvim) => {
+  nvim.setVar(ENABLE_VAR, false);
+
+  clear(nvim);
+};
+
+plugin.function('_tigris_enable', (nvim) => {
+  enable(nvim);
 });
 
 plugin.function('_tigris_disable', (nvim) => {
-  nvim.setVar(ENABLE_VAR, false);
-
-  nvim.getCurrentBuffer((err, buffer) => {
-    buffer.clearHighlight(-1, 0, -1);
-  });
-
-  HIGHLIGHT_MAP.clear();
+  disable(nvim);
 });
 
 plugin.function('_tigris_toggle', (nvim) => {
   nvim.getVar(ENABLE_VAR, (err, enabled) => {
-    nvim.setVar(ENABLE_VAR, !enabled);
+    if (enabled) {
+      disable(nvim);
+    } else {
+      enable(nvim);
+    }
   });
 });
 
 plugin.function('_tigris_highlight_clear', (nvim) => {
-  nvim.getCurrentBuffer((err, buffer) => {
-    buffer.clearHighlight(-1, 0, -1);
-  });
-
-  HIGHLIGHT_MAP.clear();
+  clear(nvim);
 });
 
 plugin.function('_tigris_parse_debounced', (nvim, args) => {
