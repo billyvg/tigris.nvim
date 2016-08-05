@@ -21,7 +21,7 @@ const DELAY_DEFAULT = 500;
 const EXT_DEFAULT = ['*.js', '*.jsx'];
 const ERR_ID = 12345;
 
-const HIGHLIGHT_MAP = new Map();
+const DEBUG_MAP = new Map();
 
 function highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
   buffer.addHighlight(id, name, lineStart, columnStart, columnEnd);
@@ -30,12 +30,12 @@ function highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug)
   if (isDebug) {
     _.range(columnEnd - columnStart + 1).forEach((num) => {
       const key = `${lineStart + 1},${columnStart + num}`; // [lineStart, columnStart + num];
-      if (!HIGHLIGHT_MAP.has(key)) {
-        HIGHLIGHT_MAP.set(key, []);
+      if (!DEBUG_MAP.has(key)) {
+        DEBUG_MAP.set(key, []);
       }
-      const groups = HIGHLIGHT_MAP.get(key);
+      const groups = DEBUG_MAP.get(key);
       groups.push(name);
-      HIGHLIGHT_MAP.set(key, groups);
+      DEBUG_MAP.set(key, groups);
     });
   }
 }
@@ -53,7 +53,7 @@ function parse(nvim) {
               buffer.getLines(0, lineCount, true, (err, res) => {
                 if (!err) {
                   // Reset debugging map of highlight groups
-                  HIGHLIGHT_MAP.clear();
+                  DEBUG_MAP.clear();
                   buffer.clearHighlight(-1, 0, -1);
 
                   // Call parser
@@ -179,7 +179,7 @@ const clear = (nvim) => {
     buffer.clearHighlight(-1, 0, -1);
   });
 
-  HIGHLIGHT_MAP.clear();
+  DEBUG_MAP.clear();
 };
 
 const enable = (nvim) => {
@@ -243,8 +243,8 @@ plugin.function('_tigris_highlight_debug', (nvim) => {
         win.getCursor((err, pos) => {
           try {
             const key = `${pos[0]},${pos[1]}`;
-            if (HIGHLIGHT_MAP.has(key)) {
-              const group = HIGHLIGHT_MAP.get(key);
+            if (DEBUG_MAP.has(key)) {
+              const group = DEBUG_MAP.get(key);
               nvim.command(`echomsg "[tigris] position: ${key} - Highlight groups: ${[group.join(', ')]}"`);
             }
           } catch (err) {
