@@ -1,4 +1,4 @@
-highlight Norm ctermfg=252 guifg=#e8e8e3
+" highlight Norm ctermfg=252 guifg=#e8e8e3
 
 " basics
 highlight link jsVariableDeclaration Keyword
@@ -66,6 +66,7 @@ highlight link jsJSXOpeningElement xmlTag
 highlight link jsJSXClosingElement xmlEndTag
 highlight link jsJSXAttribute xmlAttrib
 highlight link jsJSXExpressionContainer Norm
+highlight link jsJSXExpression Normal
 highlight link jsJSXSpreadAttributeObjectProperty Norm
 highlight link jsJSXSpreadAttributeObjectExpression Norm
 highlight link jsJSXSpreadAttributeSpreadProperty Norm

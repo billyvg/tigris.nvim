@@ -1,10 +1,10 @@
 {
   "name": "tigris.js",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "main": "src/index.js",
   "dependencies": {
-    "vim-syntax-parser": "^0.0.3",
+    "vim-syntax-parser": "^0.0.4",
     "lodash": "^4.13.1"
   },
   "devDependencies": {
