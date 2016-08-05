@@ -22,6 +22,11 @@ const EXT_DEFAULT = ['*.js', '*.jsx'];
 const ERR_ID = 12345;
 
 const DEBUG_MAP = new Map();
+let oldHighlightId;
+
+function createId() {
+  return Math.floor(Math.random() * 10000000);
+}
 
 function highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
   buffer.addHighlight(id, name, lineStart, columnStart, columnEnd);
@@ -54,7 +59,8 @@ function parse(nvim) {
                 if (!err) {
                   // Reset debugging map of highlight groups
                   DEBUG_MAP.clear();
-                  buffer.clearHighlight(-1, 0, -1);
+                  // Create new highlight group id
+                  const newId = createId();
 
                   // Call parser
                   debug('Calling tigris parser');
@@ -80,14 +86,25 @@ function parse(nvim) {
 
                         nvim.getVar(DEBUG_VAR, (err, isDebug) => {
                           highlight(
-                            buffer, -1, `js${type}`, lineStart - 1, columnStart, columnEnd, isDebug
+                            buffer,
+                            newId,
+                            `js${type}`,
+                            lineStart - 1,
+                            columnStart,
+                            columnEnd,
+                            isDebug
                           );
-                        });
 
-                        if (lineCount === lineStart) {
-                          const end = +new Date();
-                          debug(`${end - start}ms`);
-                        }
+                          if (lineCount === lineStart) {
+                            const end = +new Date();
+                            debug(`${end - start}ms`);
+                            if (oldHighlightId &&
+                                oldHighlightId !== newId) {
+                              buffer.clearHighlight(oldHighlightId, 0, -1);
+                            }
+                            oldHighlightId = newId;
+                          }
+                        });
                       } catch (err) {
                         debug('Error highlighting', err, err.stack);
                       }
