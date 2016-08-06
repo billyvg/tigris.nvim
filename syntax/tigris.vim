@@ -9,18 +9,18 @@ highlight link jsReturnKeyword SpecialChar
 
 " decorators
 highlight link jsDecorator Special
-highlight link jsDecoratorArguments Norm
+highlight link jsDecoratorArguments Normal
 
 " es6 imports/exports
 highlight link jsImportDeclaration Include
 highlight link jsImportSpecifier Include
-highlight link jsImportSpecifierIdentifier Norm
-highlight link jsImportDefaultSpecifier Norm
+highlight link jsImportSpecifierIdentifier Normal
+highlight link jsImportDefaultSpecifier Normal
 highlight link jsExportDefaultDeclaration Include
 highlight link jsExportNamedDeclaration Include
 highlight link jsExportSpecifier Include
-highlight link jsExportSpecifierIdentifier Norm
-highlight link jsExportDefaultSpecifier Norm
+highlight link jsExportSpecifierIdentifier Normal
+highlight link jsExportDefaultSpecifier Normal
 
 " strings
 highlight link jsStringLiteral String
@@ -58,18 +58,18 @@ highlight link jsArrowFunctionBlock jsFunctionKey
 
 " function default arguments
 highlight link jsDefaultArgumentAssignmentOperator Operator
-highlight link jsDefaultArgument Norm
+highlight link jsDefaultArgument Normal
 
 " jsx
 highlight link jsJSXElementName xmlTagName
 highlight link jsJSXOpeningElement xmlTag
 highlight link jsJSXClosingElement xmlEndTag
 highlight link jsJSXAttribute xmlAttrib
-highlight link jsJSXExpressionContainer Norm
-highlight link jsJSXExpression Normal
-highlight link jsJSXSpreadAttributeObjectProperty Norm
-highlight link jsJSXSpreadAttributeObjectExpression Norm
-highlight link jsJSXSpreadAttributeSpreadProperty Norm
+highlight link jsJSXExpressionContainer Normal
+highlight link jsJSXExpression Normalal
+highlight link jsJSXSpreadAttributeObjectProperty Normal
+highlight link jsJSXSpreadAttributeObjectExpression Normal
+highlight link jsJSXSpreadAttributeSpreadProperty Normal
 
 " flow
 highlight link jsFlowType Type
@@ -84,9 +84,9 @@ highlight link jsGenericTypeAnnotationParameter jsFlowTypeAnnotation
 highlight link jsGenericTypeAnnotationIdentifier jsFlowTypeAnnotation
 highlight link jsObjectTypeAnnotationStartBracket jsFlowTypeAnnotation
 highlight link jsObjectTypeAnnotationEndBracket jsFlowTypeAnnotation
-highlight link jsGenericTypeAnnotation Norm
-highlight link jsTypeParameterInstantiation Norm
+highlight link jsGenericTypeAnnotation Normal
+highlight link jsTypeParameterInstantiation Normal
 highlight link jsTypeAliasKeyword SpecialKey
-highlight link jsTypeAliasIdentifier Norm
-highlight link jsObjectTypeProperty Norm
+highlight link jsTypeAliasIdentifier Normal
+highlight link jsObjectTypeProperty Normal
 
