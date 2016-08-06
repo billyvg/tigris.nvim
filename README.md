@@ -13,7 +13,7 @@ This project is largely inspired by [chromatica][1], which in turn is largely in
 ## Prerequisites
 
 * [Neovim][4]
-* [Node.js][5], [Neovim Node.js host][8] and [Neovim Node.js client][6]
+* [Node.js][5], [Neovim Node.js host][8]
 
 Tested on:
 
@@ -21,15 +21,9 @@ Tested on:
 
 ## Installation
 
-### Install Prerequisites
+### Install Vim Plugins
 
-```bash
-npm install -g neovim-client
-```
-
-### Install Vim Plugins (needs testing)
-
-Use a plugin manager (vim-plug, Neobundle, dein, etc). `neovim/node-host` requires running npm install.
+Use a plugin manager (vim-plug, Neobundle, dein, etc). `neovim/node-host` requires running `npm install`.
 You may need to run `install.sh` in `tigris.nvim` as well.
 
 #### vim-plug
@@ -38,7 +32,16 @@ Plug 'neovim/node-host', { 'do': 'npm install' }
 Plug 'billyvg/tigris.nvim', { 'do': './install.sh' }
 ```
 
+#### dein
+```vim
+call dein#add('neovim/node-host', { 'build': 'npm install' })
+call dein#add('billyvg/tigris.nvim', { 'build': './install.sh' })
+```
+
 Or manually check out the repo and put the directory to your vim runtime path.
+
+## Updating
+Update plugins via git or plugin manager (i.e. with `vim-plug`: `:PlugUpdate`). Then `:UpdateRemotePlugins` and finally restart Neovim.
 
 ## How to use
 You can use the `:TigrisStart` (as well as `:TigrisToggle`) command to parse your document once, and `:TigrisStop` to clear highlighting and disable parsing.
@@ -83,6 +86,5 @@ before performance.
 [3]: https://github.com/jeaye/color_coded
 [4]: https://neovim.io
 [5]: https://nodejs.org/en/
-[6]: https://github.com/neovim/node-client
 [7]: https://github.com/babel/babylon
 [8]: https://github.com/neovim/node-host
