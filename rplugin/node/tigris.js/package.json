@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/index.js",
   "dependencies": {
-    "vim-syntax-parser": "^0.0.4",
+    "vim-syntax-parser": "^0.0.5",
     "lodash": "^4.13.1"
   },
   "devDependencies": {
