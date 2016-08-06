@@ -10,6 +10,9 @@ This project is largely inspired by [chromatica][1], which in turn is largely in
 
 * Accurate highlighting for modern javascript (ES6, flowtype, JSX)
 
+![Comparison](/all.png?raw=true "Comparison")
+
+
 ## Prerequisites
 
 * [Neovim][4]
