@@ -13,7 +13,7 @@ highlight link jsDecoratorArguments Normal
 
 " es6 imports/exports
 highlight link jsImportDeclaration Include
-highlight link jsImportSpecifier Include
+highlight link jsImportSpecifier Normal
 highlight link jsImportSpecifierIdentifier Normal
 highlight link jsImportDefaultSpecifier Normal
 highlight link jsExportDefaultDeclaration Include
