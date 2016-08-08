@@ -1,7 +1,8 @@
 {
-  "name": "tigris.js",
+  "name": "tigris.rplugin.nvim",
   "version": "0.1.2",
-  "description": "",
+  "description": "tigris.nvim remote plugin",
+  "repository": "https://github.com/billyvg/tigris.nvim",
   "main": "src/index.js",
   "dependencies": {
     "vim-syntax-parser": "^0.0.5",
