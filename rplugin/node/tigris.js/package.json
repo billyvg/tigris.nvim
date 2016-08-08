@@ -5,8 +5,9 @@
   "repository": "https://github.com/billyvg/tigris.nvim",
   "main": "src/index.js",
   "dependencies": {
-    "vim-syntax-parser": "^0.0.5",
-    "lodash": "^4.13.1"
+    "lodash": "^4.13.1",
+    "update-notifier": "^1.0.2",
+    "vim-syntax-parser": "^0.0.5"
   },
   "devDependencies": {
     "babel": "^6.5.2",

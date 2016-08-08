@@ -24,6 +24,42 @@ const ERR_ID = 12345;
 const DEBUG_MAP = new Map();
 let oldHighlightId;
 
+// Check for updates
+const updateNotifier = require('update-notifier');
+const pkg = require('../package.json');
+
+function checkForUpdates(nvim) {
+  const notifier = updateNotifier({
+    pkg,
+    updateCheckInterval: 1000 * 60 * 60 * 6,
+  });
+
+  if (notifier && notifier.update) {
+    if (nvim) {
+      const updateMsg = `[tigris] Update available ${notifier.update.current} →
+        ${notifier.update.latest}`;
+
+      debug(updateMsg);
+      nvim.command(`echomsg '${updateMsg}'`);
+      nvim.command(`
+        echo '[tigris]' |
+        echon ' Update available ' |
+        echohl Comment |
+        echon '${notifier.update.current}' |
+        echohl None |
+        echon ' → ' |
+        echohl Keyword |
+        echon '${notifier.update.latest}' |
+        echohl None
+      `);
+    }
+
+    return notifier.update;
+  }
+
+  return null;
+}
+
 function createId() {
   return Math.floor(Math.random() * 10000000);
 }
@@ -49,7 +85,6 @@ function parse(nvim) {
   debug('Parse start');
   const start = +new Date();
   nvim.getVar(ENABLE_VAR, (err, enabled) => {
-    debug('Should parse?: ', enabled);
     if (enabled) {
       nvim.getCurrentBuffer((err, buffer) => {
         if (!err) {
@@ -137,15 +172,12 @@ function parse(nvim) {
   });
 }
 
-const flyParse = _.debounce((nvim) => {
-  debug('Fly parse called');
-  nvim.getVar(FLY_VAR, (err, enableFly) => {
-    debug('Fly parse enabled?: ', enableFly);
-    if (enableFly) {
-      parse(nvim);
-    }
-  });
-}, DELAY_DEFAULT);
+function handleBufEnter(nvim) {
+  checkForUpdates(nvim);
+
+  parse(nvim);
+}
+
 
 let initialized = false;
 function initialize(nvim) {
@@ -190,6 +222,16 @@ function initialize(nvim) {
     });
   }
 }
+
+const flyParse = _.debounce((nvim) => {
+  debug('Fly parse called');
+  nvim.getVar(FLY_VAR, (err, enableFly) => {
+    debug('Fly parse enabled?: ', enableFly);
+    if (enableFly) {
+      parse(nvim);
+    }
+  });
+}, DELAY_DEFAULT);
 
 const clear = (nvim) => {
   nvim.getCurrentBuffer((err, buffer) => {
@@ -289,7 +331,7 @@ plugin.autocmd('TextChanged', {
 
 plugin.autocmd('BufEnter', {
   pattern: '*.js,*.jsx',
-}, parse);
+}, handleBufEnter);
 
 plugin.autocmd('BufRead', {
   pattern: '*.js,*.jsx',
