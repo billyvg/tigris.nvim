@@ -1,5 +1,5 @@
-# tigris.nvim (alpha)
-
+# tigris.nvim (alpha) [![Build Status](https://travis-ci.org/billyvg/vim-syntax-parser.svg?branch=master)](https://travis-ci.org/billyvg/vim-syntax-parser)
+ 
 tigris is a NodeJS remote plugin for Neovim that provides async syntax highlighting for
 javascript (using [babylon][7]).
 
