@@ -9,7 +9,7 @@
     "lodash": "^4.13.1",
     "regenerator-runtime": "^0.9.5",
     "update-notifier": "^1.0.2",
-    "vim-syntax-parser": "^0.0.5"
+    "vim-syntax-parser": "^0.1.0"
   },
   "devDependencies": {
     "babel": "^6.5.2",
