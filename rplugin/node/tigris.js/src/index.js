@@ -13,13 +13,13 @@ const regeneratorRuntime = require('regenerator-runtime/runtime'); // eslint-dis
 const ENABLE_VAR = 'tigris#enabled';
 // const AUTO_START_VAR = 'tigris#auto_enable';
 const DEBUG_VAR = 'tigris#debug';
-const DELAY_VAR = 'tigris#delay';
+const DELAY_VAR = 'tigris#delay'; // eslint-disable-line
 const FLY_VAR = 'tigris#on_the_fly_enabled';
-const EXT_VAR = 'tigris#extensions';
+const EXT_VAR = 'tigris#extensions'; // eslint-disable-line
 
 // defaults
 const DELAY_DEFAULT = 500;
-const EXT_DEFAULT = ['*.js', '*.jsx'];
+const EXT_DEFAULT = ['*.js', '*.jsx']; // eslint-disable-line
 const ERR_ID = 12345;
 
 const DEBUG_MAP = new Map();
