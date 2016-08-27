@@ -7,6 +7,7 @@
 'use strict'; // eslint-disable-line
 const parser = require('vim-syntax-parser').default;
 const _ = require('lodash');
+const regeneratorRuntime = require('regenerator-runtime/runtime'); // eslint-disable-line
 
 // vim vars
 const ENABLE_VAR = 'tigris#enabled';
@@ -22,11 +23,12 @@ const EXT_DEFAULT = ['*.js', '*.jsx'];
 const ERR_ID = 12345;
 
 const DEBUG_MAP = new Map();
-let oldHighlightId;
+const HL_MAP = new Map();
 
 // Check for updates
 const updateNotifier = require('update-notifier');
 const pkg = require('../package.json');
+const promisify = require('promisify-node');
 
 function checkForUpdates(nvim) {
   const notifier = updateNotifier({
@@ -60,13 +62,7 @@ function checkForUpdates(nvim) {
   return null;
 }
 
-function createId() {
-  return Math.floor(Math.random() * 10000000);
-}
-
-function highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
-  buffer.addHighlight(id, name, lineStart, columnStart, columnEnd);
-
+const highlight = function(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
   // Save highlighting group for debugging
   if (isDebug) {
     _.range(columnEnd - columnStart + 1).forEach((num) => {
@@ -79,156 +75,148 @@ function highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug)
       DEBUG_MAP.set(key, groups);
     });
   }
-}
-
-function parse(nvim) {
-  debug('Parse start');
-  const start = +new Date();
-  nvim.getVar(ENABLE_VAR, (err, enabled) => {
-    if (enabled) {
-      nvim.getCurrentBuffer((err, buffer) => {
-        if (!err) {
-          buffer.lineCount((err, lineCount) => {
-            if (!err) {
-              buffer.getLines(0, lineCount, true, (err, res) => {
-                if (!err) {
-                  // Reset debugging map of highlight groups
-                  DEBUG_MAP.clear();
-                  // Create new highlight group id
-                  const newId = createId();
-
-                  // Call parser
-                  debug('Calling tigris parser');
-                  parser(res.join('\n'), {
-                    plugins: [
-                      'jsx',
-                      'flow',
-                      'decorators',
-                      'objectRestSpread',
-                      'classProperties',
-                    ],
-                  }, (err, result) => {
-                    if (!err) {
-                      try {
-                        // wtb es6
-                        const type = result.type;
-                        const lineStart = result.lineStart;
-                        const columnStart = result.columnStart;
-                        const columnEnd = result.columnEnd;
-
-                        // Clear error highlight
-                        buffer.clearHighlight(ERR_ID, 0, -1);
-
-                        nvim.getVar(DEBUG_VAR, (err, isDebug) => {
-                          highlight(
-                            buffer,
-                            newId,
-                            `js${type}`,
-                            lineStart - 1,
-                            columnStart,
-                            columnEnd,
-                            isDebug
-                          );
-
-                          if (lineCount === lineStart) {
-                            const end = +new Date();
-                            debug(`${end - start}ms`);
-                            if (oldHighlightId &&
-                                oldHighlightId !== newId) {
-                              buffer.clearHighlight(oldHighlightId, 0, -1);
-                            }
-                            oldHighlightId = newId;
-                          }
-                        });
-                      } catch (err) {
-                        debug('Error highlighting', err, err.stack);
-                      }
-                    } else {
-                      // Error parsing
-                      debug('Error parsing AST: ', err);
-                      nvim.callFunction('tigris#util#print_error', `Error parsing AST: ${err}`);
-
-                      // should highlight errors?
-                      if (err && err.loc) {
-                        // Clear previous error highlight
-                        buffer.clearHighlight(ERR_ID, 0, -1);
-                        buffer.addHighlight(ERR_ID, 'Error', err.loc.line - 1, 0, -1);
-                      }
-                    }
-                  });
-                } else {
-                  debug('Error getting lines in current buffer: ', err, err.stack);
-                }
-              });
-            } else {
-              debug('Error getting line count in current buffer: ', err, err.stack);
-            }
-          });
-        } else {
-          debug('Error getting current buffer: ', err, err.stack);
-        }
-      });
-    }
-  });
-}
-
-function handleBufEnter(nvim) {
-  checkForUpdates(nvim);
-
-  parse(nvim);
-}
-
-
-let initialized = false;
-function initialize(nvim) {
-  debug('initializing');
-
-  // Initialize debounced function
-  if (!flyParse) {
-    debug('Creating debounced parse function');
-    nvim.getVar(DELAY_VAR, (err, delay) => {
-      const delayOrDefault = delay || DELAY_DEFAULT;
-
-      if (!initialized) {
-        nvim.getVar(EXT_VAR, (err, ext) => {
-          const extOrDefault = ext || EXT_DEFAULT;
-          const pattern = extOrDefault.join(',');
-
-          debug('Enabling tigris for extensions: ', pattern);
-
-          // This doesn't seem to work
-          /*
-          plugin.autocmd('TextChangedI', {
-            pattern,
-          }, flyParse);
-
-          plugin.autocmd('TextChanged', {
-            pattern,
-          }, flyParse);
-
-          plugin.autocmd('BufEnter', {
-            pattern,
-          }, parse);
-
-          plugin.autocmd('InsertLeave', {
-            pattern,
-          }, parse);
-          */
-
-          initialized = true;
-          debug('Finished initializing');
-        });
+  return new Promise((resolve, reject) => {
+    buffer.addHighlight(id, name, lineStart, columnStart, columnEnd, (err, res) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res);
       }
     });
+  });
+};
+
+const parse = async function({ nvim, filename, clear } = {}) {
+  const api = nvim;
+  const prStart = +new Date();
+  Object.keys(nvim).forEach((key) => {
+    if (typeof nvim[key] === 'function') {
+      api[key] = promisify(nvim[key]);
+    }
+  });
+  debug(`Promisifiy overhead ${new Date() - prStart}`);
+
+  if (!filename) {
+    debug('ERROR NO FILENAME');
   }
+
+  const _file = filename.split('/').pop();
+
+  debug(`[${_file}] Parse called`);
+  const start = +new Date();
+
+  try {
+    const enabled = await api.getVar(ENABLE_VAR);
+    if (enabled) {
+      const isDebug = await api.getVar(DEBUG_VAR);
+      const buffer = await api.getCurrentBuffer();
+      const lines = await buffer.getLines(0, -1, true);
+      const newId = await buffer.addHighlight(0, '', 0, 0, 1);
+      DEBUG_MAP.clear();
+      let results;
+
+      // Call parser
+      debug(`[${_file}/${newId}] Calling tigris parser`);
+      try {
+        results = await parser(lines.join('\n'), {
+          plugins: [
+            'asyncFunctions',
+            'asyncGenerators',
+            'classConstructorCall',
+            'classProperties',
+            'decorators',
+            'doExpressions',
+            'exponentiationOperator',
+            'exportExtensions',
+            'flow',
+            'functionSent',
+            'functionBind',
+            'jsx',
+            'objectRestSpread',
+            'trailingFunctionCommas',
+          ],
+        });
+      } catch (err) {
+        // Error parsing
+        debug('Error parsing AST: ', err);
+        nvim.callFunction('tigris#util#print_error', `Error parsing AST: ${err}`);
+
+        // should highlight errors?
+        if (err && err.loc) {
+          // Clear previous error highlight
+          buffer.clearHighlight(ERR_ID, 0, -1);
+          buffer.addHighlight(ERR_ID, 'Error', err.loc.line - 1, 0, -1);
+        }
+      }
+
+      if (results && results.length) {
+        // Clear error highlight
+        buffer.clearHighlight(ERR_ID, 0, -1);
+
+        const highlightPromises = results.map((result) => {
+          // wtb es6
+          const type = result.type;
+          const lineStart = result.lineStart;
+          const columnStart = result.columnStart;
+          const columnEnd = result.columnEnd;
+
+          return highlight(
+            buffer,
+            newId,
+            `js${type}`,
+            lineStart - 1,
+            columnStart,
+            columnEnd,
+            isDebug
+          );
+        });
+
+        Promise.all(highlightPromises).then(() => {
+          const end = +new Date();
+          debug(`Parse time: ${end - start}ms`);
+
+          if (clear) {
+            _.range(1, newId - 2).forEach(num => {
+              buffer.clearHighlight(num, 0, -1);
+            });
+          }
+
+          if (filename) {
+            const oldId = HL_MAP.get(filename);
+            if (oldId) {
+              debug(`[${_file}::${oldId}] Clearing old highlight`);
+              buffer.clearHighlight(oldId, 0, -1);
+            }
+
+            HL_MAP.set(filename, newId);
+          }
+        }).catch((err) => {
+          debug('Error highlighting', err, err.stack);
+        });
+      }
+    }
+  } catch (err) {
+    debug('Error', err);
+  }
+};
+
+function handleBufEnter(nvim, filename) {
+  checkForUpdates(nvim);
+
+  debug(`[${filename.split('/').pop()}] Handle buffer enter`);
+
+  parse({ nvim, filename, clear: true });
 }
 
-const flyParse = _.debounce((nvim) => {
-  debug('Fly parse called');
+function handleParse(nvim, filename) {
+  parse({ nvim, filename });
+}
+
+const flyParse = _.debounce((nvim, filename) => {
+  debug(`[${filename.split('/').pop()}] Fly parse called`);
   nvim.getVar(FLY_VAR, (err, enableFly) => {
-    debug('Fly parse enabled?: ', enableFly);
     if (enableFly) {
-      parse(nvim);
+      parse({ nvim, filename });
     }
   });
 }, DELAY_DEFAULT);
@@ -244,7 +232,7 @@ const clear = (nvim) => {
 const enable = (nvim) => {
   nvim.setVar(ENABLE_VAR, true, (err) => {
     if (!err) {
-      parse(nvim);
+      parse({ nvim });
     }
   });
 };
@@ -289,7 +277,7 @@ plugin.function('_tigris_parse_debounced', (nvim, args) => {
 plugin.function('_tigris_parse', (nvim, args) => {
   debug('vim func parse');
   try {
-    parse(nvim, args);
+    parse({ nvim, args });
   } catch (err) {
     debug(err, err.stack);
   }
@@ -317,30 +305,44 @@ plugin.function('_tigris_highlight_debug', (nvim) => {
   });
 });
 
+/*
 plugin.autocmd('VimEnter', {
   pattern: '*',
 }, initialize);
+*/
 
 plugin.autocmd('TextChangedI', {
   pattern: '*.js,*.jsx',
+  eval: 'expand("<afile>")',
 }, flyParse);
 
 plugin.autocmd('TextChanged', {
   pattern: '*.js,*.jsx',
+  eval: 'expand("<afile>")',
 }, flyParse);
 
 plugin.autocmd('BufEnter', {
   pattern: '*.js,*.jsx',
+  eval: 'expand("<afile>")',
 }, handleBufEnter);
 
+/*
 plugin.autocmd('BufRead', {
   pattern: '*.js,*.jsx',
-}, parse);
+  eval: 'expand("<afile>")',
+}, (nvim, filename) => {
+  debug("BufRead");
+
+  parse({ nvim, filename, clear: true });
+});
 
 plugin.autocmd('FileReadPost', {
   pattern: '*.js,*.jsx',
-}, parse);
+  eval: 'expand("<afile>")',
+}, handleParse);
+*/
 
 plugin.autocmd('InsertLeave', {
   pattern: '*.js,*.jsx',
-}, parse);
+  eval: 'expand("<afile>")',
+}, handleParse);
