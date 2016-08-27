@@ -3,7 +3,7 @@
   "version": "0.1.3",
   "description": "tigris.nvim remote plugin",
   "repository": "https://github.com/billyvg/tigris.nvim",
-  "main": "src/index.js",
+  "main": "lib/index.js",
   "dependencies": {
     "lodash": "^4.13.1",
     "regenerator-runtime": "^0.9.5",
@@ -24,6 +24,7 @@
     "eslint-plugin-react": "^5.2.2"
   },
   "scripts": {
+    "dev": "babel src --out-dir lib --watch",
     "test": "mocha test"
   },
   "author": "Billy Vong <github at mmo.me>",
