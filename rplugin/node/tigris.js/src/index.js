@@ -68,8 +68,7 @@ const parse = async function({ nvim, filename, clear } = {}) {
     debug('Error promisifying nvim api', err, err.stack);
   }
 
-  const _file = filename.split('/').pop();
-
+  const _file = filename && filename.split('/').pop() || '';
   debug(`[${_file}] Parse called`);
   const start = +new Date();
 
