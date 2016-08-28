@@ -51,16 +51,21 @@ const highlight = function(buffer, id, name, lineStart, columnStart, columnEnd, 
 
 const parse = async function({ nvim, filename, clear } = {}) {
   const api = nvim;
-  const prStart = +new Date();
-  Object.keys(nvim).forEach((key) => {
-    if (typeof nvim[key] === 'function') {
-      api[key] = promisify(nvim[key]);
+  try {
+    const start = +new Date();
+    for (const key in nvim) { // eslint-disable-line
+      if (typeof nvim[key] === 'function') {
+        api[key] = promisify(nvim[key]);
+      }
     }
-  });
-  debug(`Promisifiy overhead ${new Date() - prStart}`);
-
-  if (!filename) {
-    debug('ERROR NO FILENAME');
+    for (const key in nvim.Buffer) { // eslint-disable-line
+      if (typeof nvim.Buffer[key] === 'function') {
+        api.Buffer[key] = promisify(nvim.Buffer[key]);
+      }
+    }
+    debug(`Promisifiy overhead ${new Date() - start}ms`);
+  } catch (err) {
+    debug('Error promisifying nvim api', err, err.stack);
   }
 
   const _file = filename.split('/').pop();
