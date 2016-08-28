@@ -151,7 +151,7 @@ const parse = async function({ nvim, filename, clear } = {}) {
           if (filename) {
             const oldId = HL_MAP.get(filename);
             if (oldId) {
-              debug(`[${_file}::${oldId}] Clearing old highlight`);
+              // debug(`[${_file}::${oldId}] Clearing old highlight`);
               buffer.clearHighlight(oldId, 0, -1);
             }
 
@@ -259,7 +259,9 @@ plugin.function('_tigris_highlight_debug', (nvim) => {
             const key = `${pos[0]},${pos[1]}`;
             if (DEBUG_MAP.has(key)) {
               const group = DEBUG_MAP.get(key);
-              nvim.command(`echomsg "[tigris] position: ${key} - Highlight groups: ${[group.join(', ')]}"`);
+              nvim.command(
+                `echomsg "[tigris] position: ${key} - Highlight groups: ${[group.join(', ')]}"`
+              );
             }
           } catch (err) {
             debug(err, err.stack);
