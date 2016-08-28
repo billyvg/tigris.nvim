@@ -334,13 +334,18 @@ plugin.function('_tigris_highlight_debug', function (nvim) {
       nvim.getCurrentWindow(function (err, win) {
         win.getCursor(function (err, pos) {
           try {
-            var key = pos[0] + ',' + pos[1];
-            if (DEBUG_MAP.has(key)) {
-              var group = DEBUG_MAP.get(key);
-              nvim.command('echomsg "[tigris] position: ' + key + ' - Highlight groups: ' + [group.join(', ')] + '"');
+            if (pos) {
+              var key = pos[0] + ',' + pos[1];
+              if (DEBUG_MAP.has(key)) {
+                var group = DEBUG_MAP.get(key);
+                nvim.command('echomsg "[tigris] position: ' + key + ' - Highlight groups: ' + [group.join(', ')] + '"');
+              }
+            } else {
+              nvim.command('echomsg "[tigris] Error, position doesn\'t exist"');
+              debug('Error with highlight debug, position doesnt exist');
             }
           } catch (err) {
-            debug(err, err.stack);
+            debug('Error with highlight debug', err, err.stack);
           }
         });
       });
