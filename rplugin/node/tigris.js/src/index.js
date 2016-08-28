@@ -4,63 +4,26 @@
  * @author Billy Vong <github at mmo.me>
  * @license MIT
  */
-'use strict'; // eslint-disable-line
-const parser = require('vim-syntax-parser').default;
-const _ = require('lodash');
-const regeneratorRuntime = require('regenerator-runtime/runtime'); // eslint-disable-line
+import parser from 'vim-syntax-parser';
+import _ from 'lodash';
+import regeneratorRuntime from 'regenerator-runtime/runtime'; // eslint-disable-line
 
-// vim vars
-const ENABLE_VAR = 'tigris#enabled';
-// const AUTO_START_VAR = 'tigris#auto_enable';
-const DEBUG_VAR = 'tigris#debug';
-const DELAY_VAR = 'tigris#delay'; // eslint-disable-line
-const FLY_VAR = 'tigris#on_the_fly_enabled';
-const EXT_VAR = 'tigris#extensions'; // eslint-disable-line
+import promisify from 'promisify-node';
 
-// defaults
-const DELAY_DEFAULT = 500;
-const EXT_DEFAULT = ['*.js', '*.jsx']; // eslint-disable-line
-const ERR_ID = 12345;
+// Check for updates
+import checkForUpdates from './checkForUpdate';
+
+import {
+  ENABLE_VAR,
+  DEBUG_VAR,
+  FLY_VAR,
+  DELAY_DEFAULT,
+  ERR_ID,
+} from './constants';
 
 const DEBUG_MAP = new Map();
 const HL_MAP = new Map();
 
-// Check for updates
-const updateNotifier = require('update-notifier');
-const pkg = require('../package.json');
-const promisify = require('promisify-node');
-
-function checkForUpdates(nvim) {
-  const notifier = updateNotifier({
-    pkg,
-    updateCheckInterval: 1000 * 60 * 60 * 6,
-  });
-
-  if (notifier && notifier.update) {
-    if (nvim) {
-      const updateMsg = `[tigris] Update available ${notifier.update.current} →
-        ${notifier.update.latest}`;
-
-      debug(updateMsg);
-      nvim.command(`echomsg '${updateMsg}'`);
-      nvim.command(`
-        echo '[tigris]' |
-        echon ' Update available ' |
-        echohl Comment |
-        echon '${notifier.update.current}' |
-        echohl None |
-        echon ' → ' |
-        echohl Keyword |
-        echon '${notifier.update.latest}' |
-        echohl None
-      `);
-    }
-
-    return notifier.update;
-  }
-
-  return null;
-}
 
 const highlight = function(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
   // Save highlighting group for debugging
