@@ -5,8 +5,8 @@
   "repository": "https://github.com/billyvg/tigris.nvim",
   "main": "lib/index.js",
   "dependencies": {
-    "es6-promisify": "^4.1.0",
     "lodash": "^4.13.1",
+    "promisify-node": "^0.4.0",
     "regenerator-runtime": "^0.9.5",
     "update-notifier": "^1.0.2",
     "vim-syntax-parser": "^0.1.0"
