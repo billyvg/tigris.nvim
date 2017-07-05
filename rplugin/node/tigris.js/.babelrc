@@ -1,4 +1,15 @@
 {
-  presets: ["es2015", "stage-1"],
-  plugins: ["transform-decorators-legacy", "transform-async-to-generator"]
+  "presets": [
+    "stage-3",
+    ["env", {
+      "targets": {
+        "node": "current"
+      }
+    }]
+  ],
+
+  "plugins": [
+    "transform-class-properties",
+    "transform-decorators-legacy"
+  ]
 }

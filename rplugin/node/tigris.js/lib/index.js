@@ -1,398 +1,298 @@
 'use strict';
 
-var _vimSyntaxParser = require('vim-syntax-parser');
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
-var _vimSyntaxParser2 = _interopRequireDefault(_vimSyntaxParser);
+var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _dec11, _dec12, _class, _desc, _value, _class2;
 
 var _lodash = require('lodash');
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _runtime = require('regenerator-runtime/runtime');
+var _vimSyntaxParser = require('vim-syntax-parser');
 
-var _runtime2 = _interopRequireDefault(_runtime);
+var _vimSyntaxParser2 = _interopRequireDefault(_vimSyntaxParser);
 
-var _promisifyNode = require('promisify-node');
-
-var _promisifyNode2 = _interopRequireDefault(_promisifyNode);
-
-var _checkForUpdate = require('./checkForUpdate');
-
-var _checkForUpdate2 = _interopRequireDefault(_checkForUpdate);
+var _neovim = require('neovim');
 
 var _constants = require('./constants');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { var callNext = step.bind(null, "next"); var callThrow = step.bind(null, "throw"); function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(callNext, callThrow); } } callNext(); }); }; } /**
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * Javascript syntax parsing with babylon
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                *
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * @author Billy Vong <github at mmo.me>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                * @license MIT
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                */
-// eslint-disable-line
+function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+  var desc = {};
+  Object['ke' + 'ys'](descriptor).forEach(function (key) {
+    desc[key] = descriptor[key];
+  });
+  desc.enumerable = !!desc.enumerable;
+  desc.configurable = !!desc.configurable;
+
+  if ('value' in desc || desc.initializer) {
+    desc.writable = true;
+  }
+
+  desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+    return decorator(target, property, desc) || desc;
+  }, desc);
+
+  if (context && desc.initializer !== void 0) {
+    desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+    desc.initializer = undefined;
+  }
+
+  if (desc.initializer === void 0) {
+    Object['define' + 'Property'](target, property, desc);
+    desc = null;
+  }
+
+  return desc;
+}
+
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; } /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * Javascript syntax parsing with babylon
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * @author Billy Vong <github at mmo.me>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            *
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            * @license MIT
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            */
+
 
 // Check for updates
+// import checkForUpdates from './checkForUpdate';
 
-var DEBUG_MAP = new Map();
-var HL_MAP = new Map();
+const DEBUG_MAP = new Map();
+const HL_MAP = new Map();
 
-var highlight = function highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
-  // Save highlighting group for debugging
-  if (isDebug) {
-    _lodash2.default.range(columnEnd - columnStart + 1).forEach(function (num) {
-      var key = lineStart + 1 + ',' + (columnStart + num); // [lineStart, columnStart + num];
-      if (!DEBUG_MAP.has(key)) {
-        DEBUG_MAP.set(key, []);
-      }
-      var groups = DEBUG_MAP.get(key);
-      groups.push(name);
-      DEBUG_MAP.set(key, groups);
-    });
-  }
-  return new Promise(function (resolve, reject) {
-    buffer.addHighlight(id, name, lineStart, columnStart, columnEnd, function (err, res) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(res);
-      }
-    });
+const debouncedParser = _lodash2.default.debounce.call(_lodash2.default, (() => {
+  var _ref = _asyncToGenerator(function* (nvim, filename, parseFunc) {
+    const enableFly = yield nvim.getVar(_constants.FLY_VAR);
+
+    console.log(`[${filename.split('/').pop()}] Fly parse enabled: ${enableFly}`);
+
+    if (enableFly) {
+      parseFunc({ filename });
+    }
   });
-};
 
-var parse = (function () {
-  var _ref = _asyncToGenerator(_runtime2.default.mark(function _callee2() {
-    var _this = this;
-
-    var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-    var nvim = _ref2.nvim;
-    var filename = _ref2.filename;
-    var clear = _ref2.clear;
-
-    var api, _start, key, _key, _file, start, enabled;
-
-    return _runtime2.default.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            api = nvim;
-
-            try {
-              _start = +new Date();
-
-              for (key in nvim) {
-                // eslint-disable-line
-                if (typeof nvim[key] === 'function') {
-                  api[key] = (0, _promisifyNode2.default)(nvim[key]);
-                }
-              }
-              for (_key in nvim.Buffer) {
-                // eslint-disable-line
-                if (typeof nvim.Buffer[_key] === 'function') {
-                  api.Buffer[_key] = (0, _promisifyNode2.default)(nvim.Buffer[_key]);
-                }
-              }
-              debug('Promisifiy overhead ' + (new Date() - _start) + 'ms');
-            } catch (err) {
-              debug('Error promisifying nvim api', err, err.stack);
-            }
-
-            _file = filename && filename.split('/').pop() || '';
-
-            debug('[' + _file + '] Parse called');
-            start = +new Date();
-            _context2.prev = 5;
-            _context2.next = 8;
-            return api.getVar(_constants.ENABLE_VAR);
-
-          case 8:
-            enabled = _context2.sent;
-
-            if (!enabled) {
-              _context2.next = 11;
-              break;
-            }
-
-            return _context2.delegateYield(_runtime2.default.mark(function _callee() {
-              var isDebug, buffer, lines, newId, results, highlightPromises;
-              return _runtime2.default.wrap(function _callee$(_context) {
-                while (1) {
-                  switch (_context.prev = _context.next) {
-                    case 0:
-                      _context.next = 2;
-                      return api.getVar(_constants.DEBUG_VAR);
-
-                    case 2:
-                      isDebug = _context.sent;
-                      _context.next = 5;
-                      return api.getCurrentBuffer();
-
-                    case 5:
-                      buffer = _context.sent;
-                      _context.next = 8;
-                      return buffer.getLines(0, -1, true);
-
-                    case 8:
-                      lines = _context.sent;
-                      _context.next = 11;
-                      return buffer.addHighlight(0, '', 0, 0, 1);
-
-                    case 11:
-                      newId = _context.sent;
-
-                      DEBUG_MAP.clear();
-                      results = undefined;
-
-                      // Call parser
-
-                      debug('[' + _file + '/' + newId + '] Calling tigris parser');
-                      _context.prev = 15;
-                      _context.next = 18;
-                      return (0, _vimSyntaxParser2.default)(lines.join('\n'), {
-                        plugins: ['asyncFunctions', 'asyncGenerators', 'classConstructorCall', 'classProperties', 'decorators', 'doExpressions', 'exponentiationOperator', 'exportExtensions', 'flow', 'functionSent', 'functionBind', 'jsx', 'objectRestSpread', 'trailingFunctionCommas']
-                      });
-
-                    case 18:
-                      results = _context.sent;
-                      _context.next = 26;
-                      break;
-
-                    case 21:
-                      _context.prev = 21;
-                      _context.t0 = _context['catch'](15);
-
-                      // Error parsing
-                      debug('Error parsing AST: ', _context.t0);
-                      nvim.callFunction('tigris#util#print_error', 'Error parsing AST: ' + _context.t0);
-
-                      // should highlight errors?
-                      if (_context.t0 && _context.t0.loc) {
-                        // Clear previous error highlight
-                        buffer.clearHighlight(_constants.ERR_ID, 0, -1);
-                        buffer.addHighlight(_constants.ERR_ID, 'Error', _context.t0.loc.line - 1, 0, -1);
-                      }
-
-                    case 26:
-
-                      if (results && results.length) {
-                        // Clear error highlight
-                        buffer.clearHighlight(_constants.ERR_ID, 0, -1);
-
-                        highlightPromises = results.map(function (result) {
-                          // wtb es6
-                          var type = result.type;
-                          var lineStart = result.lineStart;
-                          var columnStart = result.columnStart;
-                          var columnEnd = result.columnEnd;
-
-                          return highlight(buffer, newId, 'js' + type, lineStart - 1, columnStart, columnEnd, isDebug);
-                        });
-
-                        Promise.all(highlightPromises).then(function () {
-                          var end = +new Date();
-                          debug('Parse time: ' + (end - start) + 'ms');
-
-                          if (clear) {
-                            _lodash2.default.range(1, newId - 2).forEach(function (num) {
-                              buffer.clearHighlight(num, 0, -1);
-                            });
-                          }
-
-                          if (filename) {
-                            var oldId = HL_MAP.get(filename);
-                            if (oldId) {
-                              // debug(`[${_file}::${oldId}] Clearing old highlight`);
-                              buffer.clearHighlight(oldId, 0, -1);
-                            }
-
-                            HL_MAP.set(filename, newId);
-                          }
-                        }).catch(function (err) {
-                          debug('Error highlighting', err, err.stack);
-                        });
-                      }
-
-                    case 27:
-                    case 'end':
-                      return _context.stop();
-                  }
-                }
-              }, _callee, _this, [[15, 21]]);
-            })(), 't0', 11);
-
-          case 11:
-            _context2.next = 16;
-            break;
-
-          case 13:
-            _context2.prev = 13;
-            _context2.t1 = _context2['catch'](5);
-
-            debug('Error', _context2.t1);
-
-          case 16:
-          case 'end':
-            return _context2.stop();
-        }
-      }
-    }, _callee2, this, [[5, 13]]);
-  }));
-
-  return function parse(_x) {
+  return function (_x, _x2, _x3) {
     return _ref.apply(this, arguments);
   };
-})();
+})(), _constants.DELAY_DEFAULT);
 
-function handleBufEnter(nvim, filename) {
-  (0, _checkForUpdate2.default)(nvim);
-
-  debug('[' + filename.split('/').pop() + '] Handle buffer enter');
-
-  parse({ nvim: nvim, filename: filename, clear: true });
-}
-
-function handleParse(nvim, filename) {
-  parse({ nvim: nvim, filename: filename });
-}
-
-var flyParse = _lodash2.default.debounce(function (nvim, filename) {
-  debug('[' + filename.split('/').pop() + '] Fly parse called');
-  nvim.getVar(_constants.FLY_VAR, function (err, enableFly) {
-    if (enableFly) {
-      parse({ nvim: nvim, filename: filename });
-    }
-  });
-}, _constants.DELAY_DEFAULT);
-
-var clear = function clear(nvim) {
-  nvim.getCurrentBuffer(function (err, buffer) {
-    buffer.clearHighlight(-1, 0, -1);
-  });
-
-  DEBUG_MAP.clear();
-};
-
-var enable = function enable(nvim) {
-  nvim.setVar(_constants.ENABLE_VAR, true, function (err) {
-    if (!err) {
-      parse({ nvim: nvim });
-    }
-  });
-};
-
-var disable = function disable(nvim) {
-  nvim.setVar(_constants.ENABLE_VAR, false);
-
-  clear(nvim);
-};
-
-plugin.function('_tigris_enable', function (nvim) {
-  enable(nvim);
-});
-
-plugin.function('_tigris_disable', function (nvim) {
-  disable(nvim);
-});
-
-plugin.function('_tigris_toggle', function (nvim) {
-  nvim.getVar(_constants.ENABLE_VAR, function (err, enabled) {
-    if (enabled) {
-      disable(nvim);
-    } else {
-      enable(nvim);
-    }
-  });
-});
-
-plugin.function('_tigris_highlight_clear', function (nvim) {
-  clear(nvim);
-});
-
-plugin.function('_tigris_parse_debounced', function (nvim, args) {
-  try {
-    if (typeof flyParse === 'function') {
-      flyParse(nvim, args);
-    }
-  } catch (err) {
-    debug(err, err.stack);
+let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neovim.Function)('tigris_enable'), _dec3 = (0, _neovim.Function)('tigris_disable'), _dec4 = (0, _neovim.Function)('tigris_toggle'), _dec5 = (0, _neovim.Function)('tigris_highlight_clear'), _dec6 = (0, _neovim.Function)('tigris_parse_debounced'), _dec7 = (0, _neovim.Function)('tigris_parse'), _dec8 = (0, _neovim.Command)('TigrisDebug'), _dec9 = (0, _neovim.Autocmd)('TextChangedI', {
+  pattern: '*.js,*.jsx',
+  eval: 'expand("<afile>")'
+}), _dec10 = (0, _neovim.Autocmd)('TextChanged', {
+  pattern: '*.js,*.jsx',
+  eval: 'expand("<afile>")'
+}), _dec11 = (0, _neovim.Autocmd)('BufEnter', {
+  pattern: '*.js,*.jsx',
+  eval: 'expand("<afile>")'
+}), _dec12 = (0, _neovim.Autocmd)('InsertLeave', {
+  pattern: '*.js,*.jsx',
+  eval: 'expand("<afile>")'
+}), _dec(_class = (_class2 = class TigrisPlugin {
+  flyParse(filename) {
+    debouncedParser(this.nvim, filename, this.parse.bind(this));
   }
-});
-plugin.function('_tigris_parse', function (nvim, args) {
-  debug('vim func parse');
-  try {
-    parse({ nvim: nvim, args: args });
-  } catch (err) {
-    debug(err, err.stack);
-  }
-});
 
-plugin.function('_tigris_highlight_debug', function (nvim) {
-  nvim.getVar(_constants.DEBUG_VAR, function (err, isDebug) {
+  enable() {
+    var _this = this;
+
+    return _asyncToGenerator(function* () {
+      yield _this.nvim.setVar(_constants.ENABLE_VAR, true);
+      _this.parse();
+    })();
+  }
+
+  disable() {
+    this.nvim.setVar(_constants.ENABLE_VAR, false);
+    this.clear();
+  }
+
+  toggle() {
+    var _this2 = this;
+
+    return _asyncToGenerator(function* () {
+      const enabled = yield _this2.nvim.getVar(_constants.ENABLE_VAR);
+      if (enabled) {
+        _this2.disable();
+      } else {
+        _this2.enable();
+      }
+    })();
+  }
+
+  clear() {
+    var _this3 = this;
+
+    return _asyncToGenerator(function* () {
+      const buffer = yield _this3.nvim.buffer;
+      buffer.clearHighlight({ srcId: -1 });
+      DEBUG_MAP.clear();
+    })();
+  }
+
+  parseDebounced(args) {
+    this.flyParse(args);
+  }
+
+  parseFunc(args) {
+
+    console.log('vim func parse');
+    try {
+      this.parse({ args });
+    } catch (err) {
+      console.log(err, err.stack);
+    }
+  }
+
+  highlightDebug() {
+    var _this4 = this;
+
+    return _asyncToGenerator(function* () {
+      const isDebug = yield _this4.nvim.getVar(_constants.DEBUG_VAR);
+      if (isDebug) {
+        const win = yield _this4.nvim.window;
+        const pos = yield win.cursor;
+        const key = `${pos[0]},${pos[1]}`;
+        if (DEBUG_MAP.has(key)) {
+          const group = DEBUG_MAP.get(key);
+          _this4.nvim.command(`echomsg "[tigris] position: ${key} - Highlight groups: ${[group.join(', ')]}"`);
+        } else {
+          _this4.nvim.command('echomsg "[tigris] Error, position doesn\'t exist"');
+          console.log('Error with highlight console.log, position doesnt exist');
+        }
+      } else {
+        _this4.nvim.command('echomsg "[tigris] console.log mode not enabled: `let g:tigris#console.log=1` to enable"');
+      }
+    })();
+  }
+
+  onTextChangedI(args) {
+    this.flyParse(args);
+  }
+
+  onTextChanged(args) {
+    this.flyParse(args);
+  }
+
+  onBufEnter() {
+    var _this5 = this;
+
+    return _asyncToGenerator(function* () {
+      const filename = yield _this5.nvim.buffer.name;
+      console.log(`[${filename.split('/').pop()}] Handle buffer enter`);
+      _this5.parse({ filename, clear: true });
+    })();
+  }
+
+  onInsertLeave(filename) {
+    this.parse(filename);
+  }
+
+  highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
+    // Save highlighting group for console.logging
     if (isDebug) {
-      nvim.getCurrentWindow(function (err, win) {
-        win.getCursor(function (err, pos) {
-          try {
-            if (pos) {
-              var key = pos[0] + ',' + pos[1];
-              if (DEBUG_MAP.has(key)) {
-                var group = DEBUG_MAP.get(key);
-                nvim.command('echomsg "[tigris] position: ' + key + ' - Highlight groups: ' + [group.join(', ')] + '"');
-              }
-            } else {
-              nvim.command('echomsg "[tigris] Error, position doesn\'t exist"');
-              debug('Error with highlight debug, position doesnt exist');
-            }
-          } catch (err) {
-            debug('Error with highlight debug', err, err.stack);
-          }
-        });
+      _lodash2.default.range(columnEnd - columnStart + 1).forEach(num => {
+        const key = `${lineStart + 1},${columnStart + num}`; // [lineStart, columnStart + num];
+        if (!DEBUG_MAP.has(key)) {
+          DEBUG_MAP.set(key, []);
+        }
+        const groups = DEBUG_MAP.get(key);
+        groups.push(name);
+        DEBUG_MAP.set(key, groups);
       });
-    } else {
-      nvim.command('echomsg "[tigris] debug mode not enabled: "let g:tigris#debug=1" to enable');
     }
-  });
-});
+    return buffer.addHighlight({
+      srcId: id, hlGroup: name, line: lineStart, colStart: columnStart, colEnd: columnEnd
+    });
+  }
 
-/*
-plugin.autocmd('VimEnter', {
-  pattern: '*',
-}, initialize);
-*/
+  parse({ filename, clear } = {}) {
+    var _this6 = this;
 
-plugin.autocmd('TextChangedI', {
-  pattern: '*.js,*.jsx',
-  eval: 'expand("<afile>")'
-}, flyParse);
+    return _asyncToGenerator(function* () {
+      try {
+        const start = +new Date();
+        const _file = filename && filename.split('/').pop() || '';
+        console.log(`[${_file}] Parse called`);
 
-plugin.autocmd('TextChanged', {
-  pattern: '*.js,*.jsx',
-  eval: 'expand("<afile>")'
-}, flyParse);
+        const enabled = yield _this6.nvim.getVar(_constants.ENABLE_VAR);
 
-plugin.autocmd('BufEnter', {
-  pattern: '*.js,*.jsx',
-  eval: 'expand("<afile>")'
-}, handleBufEnter);
+        if (enabled) {
+          const isDebug = yield _this6.nvim.getVar(_constants.DEBUG_VAR);
+          const buffer = yield _this6.nvim.buffer;
+          const lines = yield buffer.lines;
+          const newId = yield buffer.addHighlight({ srcId: 0, hlGroup: '', line: 0, colStart: 0, colEnd: 1 });
+          console.log(`new id: ${newId}, ${typeof newId}`);
+          DEBUG_MAP.clear();
+          let results;
 
-/*
-plugin.autocmd('BufRead', {
-  pattern: '*.js,*.jsx',
-  eval: 'expand("<afile>")',
-}, (nvim, filename) => {
-  debug("BufRead");
+          // Call parser
+          console.log(`[${_file}/${newId}] Calling tigris parser`);
+          try {
+            const parseStart = +new Date();
+            results = yield (0, _vimSyntaxParser2.default)(lines.join('\n'), {
+              plugins: ['asyncFunctions', 'asyncGenerators', 'classConstructorCall', 'classProperties', 'decorators', 'doExpressions', 'exponentiationOperator', 'exportExtensions', 'flow', 'functionSent', 'functionBind', 'jsx', 'objectRestSpread', 'trailingFunctionCommas']
+            });
+            console.log(`babylon parse time: ${+new Date() - parseStart}`);
+          } catch (err) {
+            // Error parsing
+            console.log('Error parsing AST: ', err);
+            _this6.nvim.callFunction('tigris#util#print_error', `Error parsing AST: ${err}`);
 
-  parse({ nvim, filename, clear: true });
-});
+            // should highlight errors?
+            if (err && err.loc) {
+              // Clear previous error highlight
+              buffer.clearHighlight({ srcId: _constants.ERR_ID });
+              buffer.addHighlight({ srcId: _constants.ERR_ID, hlGroup: 'Error', line: err.loc.line - 1, colStart: 0, colEnd: -1 });
+            }
+          }
 
-plugin.autocmd('FileReadPost', {
-  pattern: '*.js,*.jsx',
-  eval: 'expand("<afile>")',
-}, handleParse);
-*/
+          if (results && results.length) {
+            // Clear error highlight
+            buffer.clearHighlight({ srcId: _constants.ERR_ID });
 
-plugin.autocmd('InsertLeave', {
-  pattern: '*.js,*.jsx',
-  eval: 'expand("<afile>")'
-}, handleParse);
+            const highlightPromises = results.map(function (result) {
+              // wtb es6
+              const type = result.type;
+              const lineStart = result.lineStart;
+              const columnStart = result.columnStart;
+              const columnEnd = result.columnEnd;
+
+              return _this6.highlight(buffer, newId, `js${type}`, lineStart - 1, columnStart, columnEnd, isDebug);
+            });
+
+            Promise.all(highlightPromises).then(function () {
+              const end = +new Date();
+              console.log(`Parse time: ${end - start}ms`);
+
+              if (clear) {
+                _lodash2.default.range(1, newId - 2).forEach(function (num) {
+                  buffer.clearHighlight({ srcId: num });
+                });
+              }
+
+              if (filename) {
+                const oldId = HL_MAP.get(filename);
+                if (oldId) {
+                  // console.log(`[${_file}::${oldId}] Clearing old highlight`);
+                  buffer.clearHighlight({ srcId: oldId });
+                }
+
+                HL_MAP.set(filename, newId);
+              }
+            }).catch(function (err) {
+              console.log('Error highlighting', err, err.stack);
+            });
+          }
+        }
+      } catch (err) {
+        console.log('Error parsing', err);
+      }
+    })();
+  }
+}, (_applyDecoratedDescriptor(_class2.prototype, 'enable', [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, 'enable'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'disable', [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, 'disable'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'toggle', [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, 'toggle'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'clear', [_dec5], Object.getOwnPropertyDescriptor(_class2.prototype, 'clear'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'parseDebounced', [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, 'parseDebounced'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'parseFunc', [_dec7], Object.getOwnPropertyDescriptor(_class2.prototype, 'parseFunc'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'highlightDebug', [_dec8], Object.getOwnPropertyDescriptor(_class2.prototype, 'highlightDebug'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'onTextChangedI', [_dec9], Object.getOwnPropertyDescriptor(_class2.prototype, 'onTextChangedI'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'onTextChanged', [_dec10], Object.getOwnPropertyDescriptor(_class2.prototype, 'onTextChanged'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'onBufEnter', [_dec11], Object.getOwnPropertyDescriptor(_class2.prototype, 'onBufEnter'), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, 'onInsertLeave', [_dec12], Object.getOwnPropertyDescriptor(_class2.prototype, 'onInsertLeave'), _class2.prototype)), _class2)) || _class);
+exports.default = TigrisPlugin;

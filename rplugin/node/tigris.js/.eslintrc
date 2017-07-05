@@ -1,14 +1,17 @@
 {
   "parser": "babel-eslint",
-  "extends": "airbnb",
-  "globals": {
-    "plugin": true,
-    "debug": true,
-  },
+  "env": [
+    "node"
+  ],
+  "extends": [
+    "eslint:recommended"
+  ],
   "rules": {
+    "no-console": ["warn"],
+    "new-cap": 0,
     "no-shadow": 0,
     "no-underscore-dangle": 0,
     "func-names": 0,
-    "space-before-function-paren": [error, {"anonymous": "never", "named": "never"}]
+    "space-before-function-paren": ["error", {"anonymous": "never", "named": "never"}]
   }
 }

@@ -18,18 +18,29 @@ var _constants = require('./constants');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function checkForUpdates(nvim) {
-  var notifier = (0, _updateNotifier2.default)({
+  const notifier = (0, _updateNotifier2.default)({
     pkg: _package2.default,
     updateCheckInterval: _constants.UPDATE_INTERVAL
   });
 
   if (notifier && notifier.update) {
     if (nvim) {
-      var updateMsg = '[tigris] Update available ' + notifier.update.current + ' →\n        ' + notifier.update.latest;
+      const updateMsg = `[tigris] Update available ${notifier.update.current} →
+        ${notifier.update.latest}`;
 
       debug(updateMsg);
-      nvim.command('echomsg \'' + updateMsg + '\'');
-      nvim.command('\n        echo \'[tigris]\' |\n        echon \' Update available \' |\n        echohl Comment |\n        echon \'' + notifier.update.current + '\' |\n        echohl None |\n        echon \' → \' |\n        echohl Keyword |\n        echon \'' + notifier.update.latest + '\' |\n        echohl None\n      ');
+      nvim.command(`echomsg '${updateMsg}'`);
+      nvim.command(`
+        echo '[tigris]' |
+        echon ' Update available ' |
+        echohl Comment |
+        echon '${notifier.update.current}' |
+        echohl None |
+        echon ' → ' |
+        echohl Keyword |
+        echon '${notifier.update.latest}' |
+        echohl None
+      `);
     }
 
     return notifier.update;
