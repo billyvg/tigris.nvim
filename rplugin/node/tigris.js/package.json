@@ -8,7 +8,7 @@
     "lodash": "^4.13.1",
     "neovim": "^3.4.5",
     "update-notifier": "^1.0.2",
-    "vim-syntax-parser": "^0.1.0"
+    "vim-syntax-parser": "^0.1.1"
   },
   "devDependencies": {
     "babel": "^6.5.2",
