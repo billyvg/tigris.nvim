@@ -6,6 +6,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "lodash": "^4.13.1",
+    "neovim": "^3.4.5",
     "update-notifier": "^1.0.2",
     "vim-syntax-parser": "^0.1.0"
   },
@@ -26,6 +27,7 @@
   },
   "scripts": {
     "dev": "babel src --out-dir lib --watch",
+    "build": "babel src --out-dir lib",
     "test": "mocha test"
   },
   "author": "Billy Vong <github at mmo.me>",
