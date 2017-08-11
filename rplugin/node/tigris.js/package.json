@@ -1,6 +1,6 @@
 {
   "name": "tigris.rplugin.nvim",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "tigris.nvim remote plugin",
   "repository": "https://github.com/billyvg/tigris.nvim",
   "main": "lib/index.js",
