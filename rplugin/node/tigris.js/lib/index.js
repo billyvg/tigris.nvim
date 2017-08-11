@@ -50,6 +50,7 @@ function _applyDecoratedDescriptor(target, property, decorators, descriptor, con
 }
 
 function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; } /**
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            *
                                                                                                                                                                                                                                                                                                                                                                                                                                                                             * Javascript syntax parsing with babylon
                                                                                                                                                                                                                                                                                                                                                                                                                                                                             *
                                                                                                                                                                                                                                                                                                                                                                                                                                                                             * @author Billy Vong <github at mmo.me>
@@ -71,7 +72,7 @@ const debouncedParser = _lodash2.default.debounce.call(_lodash2.default, (() => 
     console.log(`[${filename.split('/').pop()}] Fly parse enabled: ${enableFly}`);
 
     if (enableFly) {
-      parseFunc({ filename });
+      parseFunc({ filename, clear: true });
     }
   });
 
@@ -80,7 +81,9 @@ const debouncedParser = _lodash2.default.debounce.call(_lodash2.default, (() => 
   };
 })(), _constants.DELAY_DEFAULT);
 
-let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neovim.Function)('tigris_enable'), _dec3 = (0, _neovim.Function)('tigris_disable'), _dec4 = (0, _neovim.Function)('tigris_toggle'), _dec5 = (0, _neovim.Function)('tigris_highlight_clear'), _dec6 = (0, _neovim.Function)('tigris_parse_debounced'), _dec7 = (0, _neovim.Function)('tigris_parse'), _dec8 = (0, _neovim.Command)('TigrisDebug'), _dec9 = (0, _neovim.Autocmd)('TextChangedI', {
+let TigrisPlugin = (_dec = (0, _neovim.Plugin)({
+  name: 'tigris'
+}), _dec2 = (0, _neovim.Function)('tigris_enable'), _dec3 = (0, _neovim.Function)('tigris_disable'), _dec4 = (0, _neovim.Function)('tigris_toggle'), _dec5 = (0, _neovim.Command)('TigrisClear'), _dec6 = (0, _neovim.Function)('tigris_parse_debounced'), _dec7 = (0, _neovim.Function)('tigris_parse'), _dec8 = (0, _neovim.Command)('TigrisDebug'), _dec9 = (0, _neovim.Autocmd)('TextChangedI', {
   pattern: '*.js,*.jsx',
   eval: 'expand("<afile>")'
 }), _dec10 = (0, _neovim.Autocmd)('TextChanged', {
@@ -129,6 +132,7 @@ let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neov
 
     return _asyncToGenerator(function* () {
       const buffer = yield _this3.nvim.buffer;
+      _this3.nvim.outWrite('Clearing\n');
       buffer.clearHighlight({ srcId: -1 });
       DEBUG_MAP.clear();
     })();
@@ -139,8 +143,7 @@ let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neov
   }
 
   parseFunc(args) {
-
-    console.log('vim func parse');
+    this.nvim.outWrite('vim func parse');
     try {
       this.parse({ args });
     } catch (err) {
@@ -162,7 +165,7 @@ let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neov
           _this4.nvim.command(`echomsg "[tigris] position: ${key} - Highlight groups: ${[group.join(', ')]}"`);
         } else {
           _this4.nvim.command('echomsg "[tigris] Error, position doesn\'t exist"');
-          console.log('Error with highlight console.log, position doesnt exist');
+          console.log('Error with highlight debug, position doesnt exist');
         }
       } else {
         _this4.nvim.command('echomsg "[tigris] console.log mode not enabled: `let g:tigris#console.log=1` to enable"');
@@ -189,7 +192,7 @@ let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neov
   }
 
   onInsertLeave(filename) {
-    this.parse(filename);
+    this.parse({ filename, clear: true });
   }
 
   highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
@@ -205,9 +208,7 @@ let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neov
         DEBUG_MAP.set(key, groups);
       });
     }
-    return buffer.addHighlight({
-      srcId: id, hlGroup: name, line: lineStart, colStart: columnStart, colEnd: columnEnd
-    });
+    return ['nvim_buf_add_highlight', [buffer, id, name, lineStart, columnStart, columnEnd]];
   }
 
   parse({ filename, clear } = {}) {
@@ -226,7 +227,6 @@ let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neov
           const buffer = yield _this6.nvim.buffer;
           const lines = yield buffer.lines;
           const newId = yield buffer.addHighlight({ srcId: 0, hlGroup: '', line: 0, colStart: 0, colEnd: 1 });
-          console.log(`new id: ${newId}, ${typeof newId}`);
           DEBUG_MAP.clear();
           let results;
 
@@ -237,11 +237,10 @@ let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neov
             results = yield (0, _vimSyntaxParser2.default)(lines.join('\n'), {
               plugins: ['asyncFunctions', 'asyncGenerators', 'classConstructorCall', 'classProperties', 'decorators', 'doExpressions', 'exponentiationOperator', 'exportExtensions', 'flow', 'functionSent', 'functionBind', 'jsx', 'objectRestSpread', 'trailingFunctionCommas']
             });
-            console.log(`babylon parse time: ${+new Date() - parseStart}`);
+            console.log(`babylon parse time: ${+new Date() - parseStart}ms`);
           } catch (err) {
             // Error parsing
             console.log('Error parsing AST: ', err);
-            _this6.nvim.callFunction('tigris#util#print_error', `Error parsing AST: ${err}`);
 
             // should highlight errors?
             if (err && err.loc) {
@@ -250,43 +249,33 @@ let TigrisPlugin = (_dec = (0, _neovim.Plugin)({ dev: true }), _dec2 = (0, _neov
               buffer.addHighlight({ srcId: _constants.ERR_ID, hlGroup: 'Error', line: err.loc.line - 1, colStart: 0, colEnd: -1 });
             }
           }
+          console.log(`Parser time: ${+new Date() - start}ms`);
 
           if (results && results.length) {
             // Clear error highlight
             buffer.clearHighlight({ srcId: _constants.ERR_ID });
-
-            const highlightPromises = results.map(function (result) {
-              // wtb es6
-              const type = result.type;
-              const lineStart = result.lineStart;
-              const columnStart = result.columnStart;
-              const columnEnd = result.columnEnd;
-
+            const [, err] = yield _this6.nvim.callAtomic(results.map(function ({ type, lineStart, columnStart, columnEnd }) {
               return _this6.highlight(buffer, newId, `js${type}`, lineStart - 1, columnStart, columnEnd, isDebug);
-            });
+            }));
 
-            Promise.all(highlightPromises).then(function () {
-              const end = +new Date();
-              console.log(`Parse time: ${end - start}ms`);
+            buffer.clearHighlight({ srcId: newId - 1 });
+            console.log(`Total time: ${+new Date() - start}ms`);
 
-              if (clear) {
-                _lodash2.default.range(1, newId - 2).forEach(function (num) {
-                  buffer.clearHighlight({ srcId: num });
-                });
-              }
+            if (clear) {
+              _lodash2.default.range(1, newId - 1).forEach(function (num) {
+                buffer.clearHighlight({ srcId: num });
+              });
+            }
 
-              if (filename) {
-                const oldId = HL_MAP.get(filename);
-                if (oldId) {
-                  // console.log(`[${_file}::${oldId}] Clearing old highlight`);
-                  buffer.clearHighlight({ srcId: oldId });
-                }
+            // if (filename) {
+            // const oldId = HL_MAP.get(filename);
+            // if (oldId) {
+            // // console.log(`[${_file}::${oldId}] Clearing old highlight`);
+            // buffer.clearHighlight({ srcId: oldId });
+            // }
 
-                HL_MAP.set(filename, newId);
-              }
-            }).catch(function (err) {
-              console.log('Error highlighting', err, err.stack);
-            });
+            // HL_MAP.set(filename, newId);
+            // }
           }
         }
       } catch (err) {

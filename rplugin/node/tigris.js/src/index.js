@@ -1,4 +1,5 @@
 /**
+ *
  * Javascript syntax parsing with babylon
  *
  * @author Billy Vong <github at mmo.me>
@@ -33,11 +34,14 @@ const debouncedParser = _.debounce.call(_, async (nvim, filename, parseFunc) => 
   console.log(`[${filename.split('/').pop()}] Fly parse enabled: ${enableFly}`);
 
   if (enableFly) {
-    parseFunc({ filename });
+    parseFunc({ filename, clear: true });
+
   }
 }, DELAY_DEFAULT);
 
-@Plugin({ dev: true })
+@Plugin({
+  name: 'tigris',
+})
 class TigrisPlugin {
   flyParse(filename) {
     debouncedParser(this.nvim, filename, this.parse.bind(this));
@@ -65,9 +69,10 @@ class TigrisPlugin {
     }
   }
 
-  @Function('tigris_highlight_clear')
+  @Command('TigrisClear')
   async clear() {
     const buffer = await this.nvim.buffer;
+    this.nvim.outWrite('Clearing\n');
     buffer.clearHighlight({ srcId: -1 });
     DEBUG_MAP.clear();
   }
@@ -79,8 +84,7 @@ class TigrisPlugin {
 
   @Function('tigris_parse')
   parseFunc(args) {
-
-    console.log('vim func parse');
+    this.nvim.outWrite('vim func parse');
     try {
       this.parse({ args });
     } catch (err) {
@@ -104,7 +108,7 @@ class TigrisPlugin {
         this.nvim.command(
           'echomsg "[tigris] Error, position doesn\'t exist"'
         );
-        console.log('Error with highlight console.log, position doesnt exist');
+        console.log('Error with highlight debug, position doesnt exist');
       }
     } else {
       this.nvim.command('echomsg "[tigris] console.log mode not enabled: `let g:tigris#console.log=1` to enable"');
@@ -141,7 +145,7 @@ class TigrisPlugin {
     eval: 'expand("<afile>")',
   })
   onInsertLeave(filename) {
-    this.parse(filename);
+    this.parse({ filename, clear: true });
   }
 
   highlight(buffer, id, name, lineStart, columnStart, columnEnd, isDebug) {
@@ -157,9 +161,7 @@ class TigrisPlugin {
         DEBUG_MAP.set(key, groups);
       });
     }
-    return buffer.addHighlight({
-      srcId: id, hlGroup: name, line: lineStart, colStart: columnStart, colEnd: columnEnd,
-    });
+    return ['nvim_buf_add_highlight', [buffer, id, name, lineStart, columnStart, columnEnd]];
   }
 
   async parse({ filename, clear } = {}) {
@@ -175,7 +177,6 @@ class TigrisPlugin {
         const buffer = await this.nvim.buffer;
         const lines = await buffer.lines;
         const newId = await buffer.addHighlight({ srcId: 0, hlGroup: '', line: 0, colStart: 0, colEnd: 1 });
-        console.log(`new id: ${newId}, ${typeof newId}`);
         DEBUG_MAP.clear();
         let results;
 
@@ -201,11 +202,10 @@ class TigrisPlugin {
               'trailingFunctionCommas',
             ],
           });
-          console.log(`babylon parse time: ${+new Date() - parseStart}`);
+          console.log(`babylon parse time: ${+new Date() - parseStart}ms`);
         } catch (err) {
           // Error parsing
           console.log('Error parsing AST: ', err);
-          this.nvim.callFunction('tigris#util#print_error', `Error parsing AST: ${err}`);
 
           // should highlight errors?
           if (err && err.loc) {
@@ -214,18 +214,12 @@ class TigrisPlugin {
             buffer.addHighlight({ srcId: ERR_ID, hlGroup: 'Error', line: err.loc.line - 1, colStart: 0, colEnd: -1 });
           }
         }
+        console.log(`Parser time: ${+new Date() - start}ms`);
 
         if (results && results.length) {
           // Clear error highlight
           buffer.clearHighlight({ srcId: ERR_ID });
-
-          const highlightPromises = results.map((result) => {
-            // wtb es6
-            const type = result.type;
-            const lineStart = result.lineStart;
-            const columnStart = result.columnStart;
-            const columnEnd = result.columnEnd;
-
+          const [, err] = await this.nvim.callAtomic(results.map(({ type, lineStart, columnStart, columnEnd }) => {
             return this.highlight(
               buffer,
               newId,
@@ -235,30 +229,26 @@ class TigrisPlugin {
               columnEnd,
               isDebug
             );
-          });
+          }));
 
-          Promise.all(highlightPromises).then(() => {
-            const end = +new Date();
-            console.log(`Parse time: ${end - start}ms`);
+          buffer.clearHighlight({ srcId: newId - 1 });
+          console.log(`Total time: ${+new Date() - start}ms`);
 
-            if (clear) {
-              _.range(1, newId - 2).forEach(num => {
-                buffer.clearHighlight({ srcId: num });
-              });
-            }
+          if (clear) {
+            _.range(1, newId - 1).forEach(num => {
+              buffer.clearHighlight({ srcId: num });
+            });
+          }
 
-            if (filename) {
-              const oldId = HL_MAP.get(filename);
-              if (oldId) {
-                // console.log(`[${_file}::${oldId}] Clearing old highlight`);
-                buffer.clearHighlight({ srcId: oldId });
-              }
+          // if (filename) {
+            // const oldId = HL_MAP.get(filename);
+            // if (oldId) {
+              // // console.log(`[${_file}::${oldId}] Clearing old highlight`);
+              // buffer.clearHighlight({ srcId: oldId });
+            // }
 
-              HL_MAP.set(filename, newId);
-            }
-          }).catch((err) => {
-            console.log('Error highlighting', err, err.stack);
-          });
+            // HL_MAP.set(filename, newId);
+          // }
         }
       }
     } catch (err) {
